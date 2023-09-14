@@ -41,18 +41,35 @@ deactivate
   - ```docker build -t donff2j/e6156-flask .```
   - ```docker images``` (I have a lot of images)
   - ```docker run -p 5001:5001 donff2j/e6156-flask```
-  - ```docker push donff2j/e6156-flask```
+  - ```docker push donff2j/e6156-flask``` (This step pushed an image for your architecture)
+
+- I committed and pushed the project. 
 
 ## EC2
 
 - I used an Amazon Linux instance.
 
+
 - I followed this example: https://medium.com/appgambit/part-1-running-docker-on-aws-ec2-cbcf0ec7c3f8
   - ```sudo yum update -y```
-  - ```sudo yum install -y amazon-linux-extras```
-  - ```sudo amazon-linux-extras install docker```
   - ```sudo service docker start```
   - ```sudo usermod -a -G docker ec2-user```
+
+
+- I cloned the project instead of pulling the container because my Mac is ARM.
+
+
+- There is a way to "build" on ARM for an Intel chipset. I am lazy.
+
+
+- I built the Dockerfile and then used ```curl localhost:5001```
+
+
+- I now need to modify the service group to get to port 5001. Go through the instance to security group and add a rule.
+
+
+- Go into the console and get the EC2 instances public IP address. You can now access the app on 5001.
+
 
 - Pull the Docker container ```docker pull donff2/e6156-flask```
 
