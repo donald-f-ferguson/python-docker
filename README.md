@@ -54,9 +54,11 @@ deactivate
   - ```sudo yum update -y```
   - ```sudo service docker start```
   - ```sudo usermod -a -G docker ec2-user```
+  - I also installed Git.
 
 
 - I cloned the project instead of pulling the container because my Mac is ARM.
+  - docker build  . -f cool
 
 
 - There is a way to "build" on ARM for an Intel chipset. I am lazy.
