@@ -173,6 +173,12 @@ a browser using the public IP address and port 5002.
 
 <img src="assets/ec2-browser-1.jpg" width="900px">
 
+## GCP
+
+The process for deploying on GCP is very similar. There are [online instructions](https://cloud.google.com/compute/docs/containers/deploying-containers#deploying_a_container_on_a_new_vm_instance)
+and many tutorials. There are several ways to run the container. To start, we are going to run on a VM
+
+
 ## Some Helpful Commands
 
 - Kill a process on a port (MacOS): ```lsof -i tcp:3000```
