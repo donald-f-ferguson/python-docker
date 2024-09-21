@@ -11,6 +11,8 @@ There are many, many other online tutorials.
 
 ## The Flow
 
+__Note:__ This example is for a Mac. Windows is similar.
+
 This example/tutorial goes through three steps:
 1. Unit test the simple FastAPI application.
 2. Deploy and test the application using Docker on the laptop/desktop.
@@ -49,7 +51,13 @@ Opening the ```http``` URL in a browser should produce something like
 ## Docker
 
 You have to install Docker desktop and start the local demon. You will also have to log into Docker Hub.
-For this example, I created an access token. At the command prompt, I entered
+If you do not have a Docker Hub ID, you will need to create one. My Docker Hub ID is ```donff2j```. Replace
+```donff2``` with your ID in the examples below.
+
+For this example, I created an [personal access token](https://docs.docker.com/security/for-developers/access-tokens/)
+for logging into Docker Hub. Save the PAT somewhere safe.
+
+At the command prompt, I entered
 ```
 docker login -u donff2j
 ```
@@ -57,7 +65,7 @@ docker login -u donff2j
 I enter the access token from Docker Hub as the password.
 
 __Note to old professor:__ The local file ```.secrets```
-contains the information, and is not pushed to GitHub.)
+contains the information, and is not pushed to GitHub.
 
 ```Dockerfile``` defines the container and its contents. There are comments in the file.<br><br>
 
@@ -94,7 +102,8 @@ docker remove cool_container
 docker run -d --name cool_container -p 5002:5002 donff2j/w4153-fastapi
 ```
 
-The last command will return a complex string similar to
+The last command runs the container in [detached mode](https://docs.docker.com/guides/language/golang/run-containers/)
+will return a complex string similar to
 ```
 ed5a34e9b84af58a0d507f5652fcec349678e2207681fdc1c70f0d1bbc911c35.
 ```
@@ -105,7 +114,8 @@ docker stop cool_container
 ```
 
 My computer is an ARM based Mac. I will use an x86 system on AWS EC2 and GCP. So, I need to build an x86
-version of the container.
+version of the container for AWS and GCP. The following command created another image/container that will
+run on an X86 system.
 
 ```
 docker buildx build --platform linux/amd64 -t donff2j/fastapi:x86 --load .
@@ -119,37 +129,49 @@ docker push donff2j/fastapi:x86
 
 ## EC2
 
-- I used an Amazon Linux instance.
+I used an Amazon Linux 2023 instance.
 
+I followed this example -- https://medium.com/appgambit/part-1-running-docker-on-aws-ec2-cbcf0ec7c3f8 --
+with some modifications.
 
-- I followed this example: https://medium.com/appgambit/part-1-running-docker-on-aws-ec2-cbcf0ec7c3f8
-  - ```sudo yum update -y```
-  - ```sudo service docker start```
-  - ```sudo usermod -a -G docker ec2-user```
-  - I also installed Git.
+Use the AWS console to create an EC2 instance. These are the same steps that you followed previously for
+creating an instance. The, login to the instance.
 
+Ensure that you have Docker on the EC2 instance. The following commands will install Docker.
+```
+sudo yum update -y
+sudo yum install docker -y
+sudo service docker start
+sudo usermod -a -G docker ec2-user
+```
+The last step adds the user ```ec2-user``` to the permission group for Docker. This eliminates the need to
+use ```sudo``` in Docker commands. You must logout and then log back in to EC2.
 
-- I cloned the project instead of pulling the container because my Mac is ARM.
-  - docker build  . -f cool
+Now, login into Docker hub using your Docker Hub ID and personal access token.
+```
+docker login -u donff2j
+```
+and enter personal access token for the password.
 
+You can now pull and execute your x86 container from Docker Hub. 
+```
+docker pull donff2j/fastapi:x86
 
-- There is a way to "build" on ARM for an Intel chipset. I am lazy.
+sudo docker run --env  WHEREAMI=EC2 -d -p 5002:5002 donff2j/fastapi:x86
+```
+The ```--env WHEREAMI=EC2``` sets the environment variable to display a different message to verify
+that things are running on EC2. Enter the following into the terminal
+```
+curl localhost:5002
+```
+This will display something like the following:
 
+<img src="assets/ec2-terminal.jpg" width="900px">
 
-- I built the Dockerfile and then used ```curl localhost:5001```
+Exposing port 5002 in the AWS security group will enable remote HTTP access to the application. You can access through
+a browser using the public IP address and port 5002.
 
-
-- I now need to modify the service group to get to port 5001. Go through the instance to security group and add a rule.
-
-
-- Go into the console and get the EC2 instances public IP address. You can now access the app on 5001.
-
-
-- Pull the Docker container ```docker pull donff2/e6156-flask```
-
-
-- I used an Amazon Linux instance.
-- 
+<img src="assets/ec2-browser-1.jpg" width="900px">
 
 ## Some Helpful Commands
 
