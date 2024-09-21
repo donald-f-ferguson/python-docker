@@ -1,49 +1,121 @@
-# python-docker
+# W4153 - Cloud Computing: FastAPI-python-docker
 
-A simple Python app for [Docker's Python Language Guide](https://docs.docker.com/language/python).
+## Overview
 
-# DFF Copied Over
+This is a simple, end-to-end example of a simple microservice implemented using FastAPI
+and running in a Docker container. The example also documents the steps to deploy on Amazon EC2 and
+Google Cloud Compute Engine.
 
-- I copied over some of the scripts from the website to make easier to cut and paste.
+There are many, many other online tutorials. 
 
-## Run a simple test.
 
+## The Flow
+
+This example/tutorial goes through three steps:
+1. Unit test the simple FastAPI application.
+2. Deploy and test the application using Docker on the laptop/desktop.
+3. Deploy and test the application using Docker on a cloud service provider. There are two sub-examples:
+   4. Amazon Web Services
+   5. Google Cloud Platform
+
+
+## Simple Unit Test
+
+The first step is to create a python virtual environment and activate it. Most Python integrated development
+environments can create python virtual environments. Otherwise, you can follow online instructions to create and
+activate a virtual environment.
+
+Open a terminal window in the project directory and make sure that the command prompt is in the virtual
+environment. An example from PyCharm on my Mac is:
+
+<img src="assets/python-env.jpg">
+
+This shows that python is not the system python and in a virtual environment.
+
+Install the python dependencies.
 ```
-# This is not necessary becaise I am in the directory
-# cd /path/to/python-docker
-
-# Create a virtual environment. https://docs.python.org/3/library/venv.html
-python3 -m venv .venv
-
-# Activate the virtual environment.
-source .venv/bin/activate
-
-# Install dependencies. This is an example of one of the 12 Factor Rules --> Declare dependencies.
-(.venv) $ python3 -m pip install -r requirements.txt
-
-# Run the application and access from a browser
-(.venv) $ python3 -m flask run
-
-# CNTL-C to end application
-
-# Exit virtual environment.
-deactivate
+pip install -r requirements.txt
 ```
+
+Run the application ```app.py.``` This should produce a terminal output similar to
+
+<img src="assets/terminal1.jpg" width="900px">
+
+Opening the ```http``` URL in a browser should produce something like
+
+<img src="assets/browser1.jpg" width="900px">
+
 
 ## Docker
 
-- The command example is in beta and I am not using that version of Docker.
+You have to install Docker desktop and start the local demon. You will also have to log into Docker Hub.
+For this example, I created an access token. At the command prompt, I entered
+```
+docker login -u donff2j
+```
 
+I enter the access token from Docker Hub as the password.
 
-- So, I went old school and wrote the files following a different example.  https://medium.com/geekculture/how-to-dockerize-your-flask-application-2d0487ecefb8
+__Note to old professor:__ The local file ```.secrets```
+contains the information, and is not pushed to GitHub.)
 
-- Commands:
-  - ```docker build -t donff2j/e6156-flask .```
-  - ```docker images``` (I have a lot of images)
-  - ```docker run -p 5001:5001 donff2j/e6156-flask```
-  - ```docker push donff2j/e6156-flask``` (This step pushed an image for your architecture)
+```Dockerfile``` defines the container and its contents. There are comments in the file.<br><br>
 
-- I committed and pushed the project. 
+```
+docker build -t donff2j/w4153-fastapi .
+```
+builds the container image using the Docker file. ```donff2j``` is
+the Docker Hub ID, and I am tagging the container for the container repo and name.<br><br>
+
+```docker images``` will list all of the images.<br><br>
+
+```
+docker run --name cool_container -p 5002:5002 donff2j/w4153-fastapi
+```
+runs the container in the foreground. This
+This will show the console. The option ```-p``` exposes the container port 5002 at the host computer's port 5002. The
+The option ```--name cool_container``` assign a name that you can use to perform operations on the container.
+
+Opening the browser and navigating to ```localhost:5002``` will show the same material as previously. The message
+will be slightly different and read ```Hello, from DOCKER! I changed.``` This is because the Dockerfile set some
+environment variables, including ```ENV WHEREAMI=DOCKER.``` This is a simple example of the 12 Factor App principle
+[III. Config -- Store config in the environment.](https://12factor.net/) We will use this principle in later
+examples, for example to set database URLs and authentication information.
+
+The console shows log messages when you access from the browser.
+
+<img src="assets/terminal-2.jpg" width="900px">
+
+You can stop the container using ```CTL-C.``` If you want to run the container disconnected and in
+the background, you can use the commands
+```
+docker remove cool_container
+
+docker run -d --name cool_container -p 5002:5002 donff2j/w4153-fastapi
+```
+
+The last command will return a complex string similar to
+```
+ed5a34e9b84af58a0d507f5652fcec349678e2207681fdc1c70f0d1bbc911c35.
+```
+
+You can stop the container with
+```aiexclude
+docker stop cool_container
+```
+
+My computer is an ARM based Mac. I will use an x86 system on AWS EC2 and GCP. So, I need to build an x86
+version of the container.
+
+```
+docker buildx build --platform linux/amd64 -t donff2j/fastapi:x86 --load .
+```
+
+Push the container to the hub.
+
+```aiexclude
+docker push donff2j/fastapi:x86 
+```
 
 ## EC2
 
