@@ -19,7 +19,7 @@ COPY . .
 
 # Expose/publish port 5002 for the container.
 #
-EXPOSE 5001
+EXPOSE 8080
 
 # Look in the code. This is an environment variable
 # passed to the application.
